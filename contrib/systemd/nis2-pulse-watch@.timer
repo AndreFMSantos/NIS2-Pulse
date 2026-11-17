@@ -1,0 +1,10 @@
+[Unit]
+Description=Run nis2-pulse watch for %i once a day
+
+[Timer]
+OnCalendar=*-*-* 07:15:00
+RandomizedDelaySec=20min
+Persistent=true
+
+[Install]
+WantedBy=timers.target

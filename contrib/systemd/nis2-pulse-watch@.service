@@ -1,0 +1,28 @@
+# User unit, one instance per domain: nis2-pulse-watch@example.pt.service
+#
+# Setup (as your own user, no root):
+#   install -m 0755 bin/nis2-pulse ~/.local/bin/nis2-pulse
+#   mkdir -p ~/.config/nis2-pulse && install -m 0600 /dev/null ~/.config/nis2-pulse/ntfy-url
+#   echo 'https://ntfy.sh/your-private-topic' > ~/.config/nis2-pulse/ntfy-url
+#   cp contrib/systemd/nis2-pulse-watch@.* ~/.config/systemd/user/
+#   systemctl --user daemon-reload
+#   nis2-pulse watch --test-notify --ntfy-url-file ~/.config/nis2-pulse/ntfy-url example.pt
+#   systemctl --user enable --now nis2-pulse-watch@example.pt.timer
+[Unit]
+Description=nis2-pulse: monitor %i and notify through ntfy when something gets worse
+Documentation=https://github.com/AndreFMSantos/NIS2-Pulse
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=%h/.local/bin/nis2-pulse watch --ntfy-url-file=%h/.config/nis2-pulse/ntfy-url %i
+# The monitor only needs the network and its own state directory.
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=%S/nis2-pulse
+StateDirectory=nis2-pulse
+Environment=XDG_STATE_HOME=%S
+TimeoutStartSec=15min
